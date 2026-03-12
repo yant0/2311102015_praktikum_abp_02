@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Berkah Ramadan</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            .modal.fade .modal-dialog {
+                transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.8s ease-out;
+                transform: scale(0) rotate(720deg) translateY(-500px);
+                opacity: 0;
+            }
+
+            .modal.show .modal-dialog {
+                transform: scale(1) rotate(0deg) translateY(0);
+                opacity: 1;
+            }
+        </style>
+    </head>
+    <body class="bg-success text-white min-vh-100 d-flex align-items-center">
+
+        <div class="container">
+            <div class="row justify-content-center">
+                <div
+                    class="col-11 col-md-8 col-lg-6 text-center bg-white text-dark p-5 rounded-4 shadow-lg border border-warning border-5">
+                    <h1 class="display-5 fw-bold text-success mb-3">Marhaban ya Ramadan</h1>
+                    <p class="lead mb-5 text-secondary">Mari sambut bulan suci dengan penuh suka cita dan raih
+                        keberkahannya.</p>
+
+                    <button type="button" class="btn btn-warning btn-lg fw-bold text-dark px-5 py-3 rounded-pill shadow"
+                        data-bs-toggle="modal" data-bs-target="#thrModal">
+                        Buka Kejutan Ramadan
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="thrModal" tabindex="-1" aria-labelledby="thrModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4 text-dark">
+                    <div class="modal-header bg-warning border-0 rounded-top-4">
+                        <h5 class="modal-title fw-bold" id="thrModalLabel">Alhamdulillah</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                    </div>
+                    <div class="modal-body text-center py-5">
+                        <h2 class="text-success fw-bold mb-3">Selamat!</h2>
+                        <h4 class="text-dark">Anda mendapatkan THR!</h4>
+                    </div>
+                    <div class="modal-footer border-0 justify-content-center pb-4">
+                        <button type="button" class="btn btn-success btn-lg px-5 rounded-pill shadow-sm"
+                            data-bs-dismiss="modal">Klaim Sekarang</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+</html>
