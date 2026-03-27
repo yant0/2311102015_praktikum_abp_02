@@ -1,0 +1,14 @@
+[
+    {
+        "id": 1,
+        "nama": "Yanto",
+        "address": "Purwokerto, Jl. Sidodadi",
+        "hutang": "10000"
+    },
+    {
+        "id": 2,
+        "nama": "Rifqi",
+        "address": "Purworketo, Jl. Bruderan",
+        "hutang": "1234"
+    }
+]
