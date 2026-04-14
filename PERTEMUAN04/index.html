@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Tugas Modul AJAX – Menampilkan data profil dari server tanpa reload halaman." />
+  <title>Tugas AJAX – Tampilkan Profil</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Tokens ─────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #0f1117;
+      --surface:    #1a1d2e;
+      --card:       #22263a;
+      --border:     #2e3352;
+      --accent:     #6c63ff;
+      --accent-2:   #a78bfa;
+      --text:       #e2e8f0;
+      --muted:      #8892b0;
+      --success:    #10b981;
+      --radius:     14px;
+      --shadow:     0 8px 32px rgba(0,0,0,.45);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 20px 80px;
+    }
+
+    /* ── Header ─────────────────────────────────────── */
+    header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    header .badge {
+      display: inline-block;
+      background: rgba(108,99,255,.18);
+      color: var(--accent-2);
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 100px;
+      border: 1px solid rgba(108,99,255,.35);
+      margin-bottom: 18px;
+    }
+    header h1 {
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 30%, var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    header p {
+      color: var(--muted);
+      font-size: .95rem;
+      max-width: 420px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ── Card wrapper ───────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 36px 40px;
+      width: 100%;
+      max-width: 700px;
+      box-shadow: var(--shadow);
+    }
+
+    /* ── Button ─────────────────────────────────────── */
+    #btn-tampilkan {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 auto 32px;
+      padding: 14px 32px;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), #9c7dff);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+      box-shadow: 0 4px 18px rgba(108,99,255,.45);
+    }
+    #btn-tampilkan:hover  { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(108,99,255,.6); }
+    #btn-tampilkan:active { transform: translateY(0);    opacity: .9; }
+    #btn-tampilkan:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+    /* Spinner icon inside button */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(255,255,255,.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
+    }
+    .loading .spinner { display: block; }
+    .loading .btn-icon { display: none; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Results area ───────────────────────────────── */
+    #hasil-profil {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 32px 0 12px;
+      color: var(--muted);
+    }
+    .empty-state svg { opacity: .35; margin-bottom: 12px; }
+    .empty-state p   { font-size: .9rem; }
+
+    /* Profile row card */
+    .profil-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      animation: fadeSlide .35s ease both;
+    }
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Avatar circle */
+    .avatar {
+      flex-shrink: 0;
+      width: 46px; height: 46px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .profil-info { flex: 1; }
+    .profil-info .nama {
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .profil-info .meta {
+      font-size: .85rem;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .meta .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--border);
+      padding: 2px 10px;
+      border-radius: 100px;
+      font-size: .8rem;
+    }
+
+    /* raw text format required by spec */
+    .profil-raw {
+      font-size: .78rem;
+      color: var(--accent-2);
+      margin-top: 6px;
+      font-family: 'Courier New', monospace;
+      opacity: .8;
+    }
+
+    /* Error state */
+    .error-msg {
+      background: rgba(239,68,68,.1);
+      border: 1px solid rgba(239,68,68,.35);
+      color: #f87171;
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-size: .9rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="badge">📡 Tugas Modul AJAX</div>
+    <h1>Data Profil dari Server</h1>
+    <p>Klik tombol di bawah untuk mengambil data dari <code>data.php</code> tanpa reload halaman.</p>
+  </header>
+
+  <div class="card">
+    <!-- Tombol Tampilkan Profil -->
+    <button id="btn-tampilkan">
+      <span class="btn-icon">🚀</span>
+      <div class="spinner"></div>
+      Tampilkan Profil
+    </button>
+
+    <!-- Kontainer hasil AJAX -->
+    <div id="hasil-profil">
+      <div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        </svg>
+        <p>Data profil belum dimuat.<br>Tekan tombol di atas untuk memulai.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const btn    = document.getElementById('btn-tampilkan');
+    const hasil  = document.getElementById('hasil-profil');
+
+    btn.addEventListener('click', function () {
+      // Visual loading state
+      btn.disabled = true;
+      btn.classList.add('loading');
+      btn.lastChild.textContent = ' Memuat…';
+
+      // ── AJAX dengan Fetch API ──────────────────────
+      fetch('data.php')
+        .then(function (response) {
+          if (!response.ok) {
+            throw new Error('HTTP error! status: ' + response.status);
+          }
+          return response.json();          // parse JSON
+        })
+        .then(function (data) {
+          tampilkanData(data);
+        })
+        .catch(function (error) {
+          hasil.innerHTML =
+            '<div class="error-msg">⚠️ Gagal mengambil data: ' + error.message + '</div>';
+        })
+        .finally(function () {
+          btn.disabled = false;
+          btn.classList.remove('loading');
+          btn.lastChild.textContent = ' Tampilkan Profil';
+        });
+    });
+
+    // ── Render data ke DOM ─────────────────────────────
+    function tampilkanData(data) {
+      if (!Array.isArray(data) || data.length === 0) {
+        hasil.innerHTML = '<p style="color:var(--muted);text-align:center">Tidak ada data.</p>';
+        return;
+      }
+
+      hasil.innerHTML = '';   // kosongkan sebelum isi ulang
+
+      data.forEach(function (profil, index) {
+        const initial = profil.nama.charAt(0).toUpperCase();
+
+        // Format teks sesuai spesifikasi tugas
+        const rawText =
+          'Nama: ' + profil.nama +
+          ' | Pekerjaan: ' + profil.pekerjaan +
+          ' | Lokasi: ' + profil.lokasi;
+
+        const item = document.createElement('div');
+        item.className = 'profil-item';
+        item.style.animationDelay = (index * 80) + 'ms';
+        item.innerHTML =
+          '<div class="avatar">' + initial + '</div>' +
+          '<div class="profil-info">' +
+            '<div class="nama">' + profil.nama + '</div>' +
+            '<div class="meta">' +
+              '<span class="tag">💼 ' + profil.pekerjaan + '</span>' +
+              '<span class="tag">📍 ' + profil.lokasi + '</span>' +
+            '</div>' +
+            '<div class="profil-raw">' + rawText + '</div>' +
+          '</div>';
+
+        hasil.appendChild(item);
+      });
+    }
+  </script>
+</body>
+</html>
